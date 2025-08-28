@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mars's Blogs</title>
+    <script src="https://cdn.tailwindcss.com/3.3.3"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <style>
+        body {
+            transition: background-color 0.3s ease, color 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+        .dark {
+            background-color: #1a202c;
+            color: #e2e8f0;
+        }
+        .dark .card {
+            background-color: #2d3748;
+            border-color: #4a5568;
+        }
+        .dark .tag {
+            background-color: #2d3748;
+            border-color: #4a5568;
+        }
+        .card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        .tag {
+            transition: all 0.2s ease;
+        }
+        .tag:hover {
+            background-color: #3498db;
+            color: white;
+        }
+        .mobile-menu {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        .mobile-menu.active {
+            max-height: 500px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <!-- 顶部导航栏 -->
+    <nav class="bg-white shadow-sm py-4 px-6 dark:bg-gray-800">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">Mars's Blogs</div>
+            
+            <div class="hidden md:flex items-center space-x-6">
+                <button id="themeToggle" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <i class="fas fa-moon dark:hidden"></i>
+                    <i class="fas fa-sun hidden dark:inline"></i>
+                </button>
+            </div>
+            
+            <button class="md:hidden p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700" id="mobileMenuButton">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        
+        <!-- 移动端菜单 -->
+        <div class="mobile-menu md:hidden mt-2 px-2" id="mobileMenu">
+            <div class="py-2">
+                <button id="mobileThemeToggle" class="w-full text-left px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center">
+                    <i class="fas fa-moon dark:hidden mr-2"></i>
+                    <i class="fas fa-sun hidden dark:inline mr-2"></i>
+                    <span>切换主题</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <main class="container mx-auto py-8 px-4 md:px-6">
+        <div class="flex flex-col md:flex-row gap-8">
+            <!-- 文章列表 -->
+            <div class="md:w-2/3">
+                <h2 class="text-2xl font-bold mb-6 dark:text-white">最新文章</h2>
+                
+                <!-- 文章卡片 -->
+                <div class="space-y-6">
+                    <article class="card bg-white rounded-lg shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+                        <h3 class="text-xl font-bold mb-2 dark:text-white">React Hooks 最佳实践</h3>
+                        <div class="text-sm text-gray-500 mb-4 dark:text-gray-400">
+                            <span>2023-10-15</span> · <span>技术笔记</span>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-300 mb-4">
+                            本文探讨了React Hooks在实际项目中的应用技巧，包括useEffect的依赖项优化、自定义Hook的设计模式以及如何避免常见陷阱。
+                        </p>
+                        <a href="#" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium">阅读更多 →</a>
+                    </article>
+                    
+                    <article class="card bg-white rounded-lg shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+                        <h3 class="text-xl font-bold mb-2 dark:text-white">极简生活的艺术</h3>
+                        <div class="text-sm text-gray-500 mb-4 dark:text-gray-400">
+                            <span>2023-09-28</span> · <span>生活方式</span>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-300 mb-4">
+                            在物质丰富的时代，如何通过极简主义找到生活的本质？本文分享了我实践极简生活一年来的心得体会和实用技巧。
+                        </p>
+                        <a href="#" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium">阅读更多 →</a>
+                    </article>
+                    
+                    <article class="card bg-white rounded-lg shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+                        <h3 class="text-xl font-bold mb-2 dark:text-white">2023年阅读总结</h3>
+                        <div class="text-sm text-gray-500 mb-4 dark:text-gray-400">
+                            <span>2023-09-15</span> · <span>阅读笔记</span>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-300 mb-4">
+                            今年我读了32本书，从科幻小说到哲学著作。本文分享我最喜欢的5本书以及它们如何改变了我的思维方式。
+                        </p>
+                        <a href="#" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium">阅读更多 →</a>
+                    </article>
+                    
+                    <article class="card bg-white rounded-lg shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+                        <h3 class="text-xl font-bold mb-2 dark:text-white">TypeScript 类型体操入门</h3>
+                        <div class="text-sm text-gray-500 mb-4 dark:text-gray-400">
+                            <span>2023-08-22</span> · <span>技术笔记</span>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-300 mb-4">
+                            TypeScript的高级类型系统可以解决许多复杂问题。本文通过实际案例演示如何利用条件类型、映射类型和模板字面量类型构建强大的类型工具。
+                        </p>
+                        <a href="#" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium">阅读更多 →</a>
+                    </article>
+                    
+                    <article class="card bg-white rounded-lg shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+                        <h3 class="text-xl font-bold mb-2 dark:text-white">数字游民的生活实验</h3>
+                        <div class="text-sm text-gray-500 mb-4 dark:text-gray-400">
+                            <span>2023-08-05</span> · <span>生活方式</span>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-300 mb-4">
+                            过去六个月，我在五个不同国家远程工作。本文分享数字游民生活方式的利弊、实用工具包以及如何保持工作效率的经验。
+                        </p>
+                        <a href="#" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium">阅读更多 →</a>
+                    </article>
+                </div>
+            </div>
+            
+            <!-- 侧边栏 -->
+            <div class="md:w-1/3">
+                <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100 dark:bg-gray-800 dark:border-gray-700 sticky top-6">
+                    <h2 class="text-xl font-bold mb-4 dark:text-white">分类标签</h2>
+                    <div class="flex flex-wrap gap-2">
+                        <button class="tag px-3 py-1 rounded-full border border-gray-200 text-sm hover:bg-blue-600 hover:text-white dark:border-gray-600 dark:text-gray-300" data-category="技术笔记">技术笔记</button>
+                        <button class="tag px-3 py-1 rounded-full border border-gray-200 text-sm hover:bg-blue-600 hover:text-white dark:border-gray-600 dark:text-gray-300" data-category="生活方式">生活方式</button>
+                        <button class="tag px-3 py-1 rounded-full border border-gray-200 text-sm hover:bg-blue-600 hover:text-white dark:border-gray-600 dark:text-gray-300" data-category="阅读笔记">阅读笔记</button>
+                        <button class="tag px-3 py-1 rounded-full border border-gray-200 text-sm hover:bg-blue-600 hover:text-white dark:border-gray-600 dark:text-gray-300" data-category="旅行见闻">旅行见闻</button>
+                        <button class="tag px-3 py-1 rounded-full border border-gray-200 text-sm hover:bg-blue-600 hover:text-white dark:border-gray-600 dark:text-gray-300" data-category="个人成长">个人成长</button>
+                        <button class="tag px-3 py-1 rounded-full border border-gray-200 text-sm hover:bg-blue-600 hover:text-white dark:border-gray-600 dark:text-gray-300" data-category="科技趋势">科技趋势</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-white py-6 border-t border-gray-100 dark:bg-gray-800 dark:border-gray-700">
+        <div class="container mx-auto px-4 text-center text-gray-500 dark:text-gray-400">
+            <p>© 2023 Mars's Blogs. All rights reserved.</p>
+            <p class="mt-2 text-sm">
+                <span>created by </span>
+                <a href="https://space.coze.cn" class="text-blue-600 hover:underline dark:text-blue-400">coze space</a>
+                <span> | 页面内容均由 AI 生成，仅供参考</span>
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // 主题切换功能
+        const themeToggle = document.getElementById('themeToggle');
+        const mobileThemeToggle = document.getElementById('mobileThemeToggle');
+        
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark');
+            localStorage.setItem('darkMode', document.documentElement.classList.contains('dark'));
+        }
+        
+        // 检查本地存储的主题偏好
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.documentElement.classList.add('dark');
+        }
+        
+        themeToggle.addEventListener('click', toggleTheme);
+        mobileThemeToggle.addEventListener('click', toggleTheme);
+        
+        // 移动端菜单切换
+        const mobileMenuButton = document.getElementById('mobileMenuButton');
+        const mobileMenu = document.getElementById('mobileMenu');
+        
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('active');
+            mobileMenuButton.querySelector('i').classList.toggle('fa-bars');
+            mobileMenuButton.querySelector('i').classList.toggle('fa-times');
+        });
+        
+        // 标签筛选功能（模拟）
+        const tags = document.querySelectorAll('.tag');
+        tags.forEach(tag => {
+            tag.addEventListener('click', () => {
+                // 模拟筛选效果
+                tags.forEach(t => t.classList.remove('bg-blue-600', 'text-white'));
+                tag.classList.add('bg-blue-600', 'text-white');
+                
+                // 这里可以添加实际的筛选逻辑
+                console.log(`筛选分类: ${tag.dataset.category}`);
+            });
+        });
+    </script>
+</body>
+</html>

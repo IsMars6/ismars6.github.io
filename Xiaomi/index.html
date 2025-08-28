@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小米官网 - 内测宣誓</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        a {
+            text-decoration: none;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1224px;
+            margin: 0 auto;
+            padding: 0 14px;
+        }
+        
+        /* 头部导航 */
+        header {
+            background-color: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 80px;
+        }
+        
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #ff6700;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+        
+        .nav-links li {
+            margin: 0 15px;
+        }
+        
+        .nav-links a:hover {
+            color: #ff6700;
+        }
+        
+        /* 主横幅 */
+        .hero {
+            height: 500px;
+            background: linear-gradient(135deg, #ff6700 0%, #ffaa34 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            margin-bottom: 40px;
+            border-radius: 0 0 8px 8px;
+        }
+        
+        .hero-content h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .hero-content p {
+            font-size: 20px;
+            margin-bottom: 30px;
+            max-width: 600px;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background-color: #fff;
+            color: #ff6700;
+            padding: 14px 36px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 18px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+        }
+        
+        /* 产品展示区 */
+        .products {
+            margin-bottom: 60px;
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: 32px;
+            margin-bottom: 40px;
+            position: relative;
+            color: #333;
+        }
+        
+        .section-title:after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 3px;
+            background: #ff6700;
+            margin: 15px auto;
+        }
+        
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
+        }
+        
+        .product-card {
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: transform 0.3s;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .product-img {
+            height: 200px;
+            background-color: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .product-img i {
+            font-size: 80px;
+            color: #ff6700;
+        }
+        
+        .product-info {
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .product-info h3 {
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        
+        .product-info .price {
+            color: #ff6700;
+            font-weight: bold;
+            font-size: 20px;
+        }
+        
+        /* 内测宣誓区域 */
+        .beta-section {
+            background: linear-gradient(135deg, #2c3e50 0%, #4a6491 100%);
+            color: white;
+            padding: 80px 0;
+            text-align: center;
+            margin-bottom: 60px;
+            border-radius: 8px;
+        }
+        
+        .beta-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .beta-content h2 {
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+        
+        .beta-content p {
+            font-size: 18px;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+        
+        .beta-button {
+            display: inline-block;
+            background-color: #ff6700;
+            color: white;
+            padding: 16px 40px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 18px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        
+        .beta-button:hover {
+            background-color: #ff8533;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+        }
+        
+        /* 页脚 */
+        footer {
+            background-color: #fff;
+            padding: 60px 0 30px;
+            color: #757575;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .footer-column h3 {
+            color: #424242;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+        
+        .footer-column ul {
+            list-style: none;
+        }
+        
+        .footer-column ul li {
+            margin-bottom: 12px;
+        }
+        
+        .footer-column a {
+            color: #757575;
+            transition: color 0.2s;
+        }
+        
+        .footer-column a:hover {
+            color: #ff6700;
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            font-size: 14px;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .header-inner {
+                height: 60px;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .hero {
+                height: 400px;
+            }
+            
+            .hero-content h1 {
+                font-size: 32px;
+            }
+            
+            .hero-content p {
+                font-size: 16px;
+            }
+            
+            .section-title {
+                font-size: 26px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 头部导航 -->
+    <header>
+        <div class="container">
+            <div class="header-inner">
+                <a href="#" class="logo">小米</a>
+                <ul class="nav-links">
+                    <li><a href="#">小米手机</a></li>
+                    <li><a href="#">Redmi</a></li>
+                    <li><a href="#">电视</a></li>
+                    <li><a href="#">笔记本</a></li>
+                    <li><a href="#">家电</a></li>
+                    <li><a href="#">路由器</a></li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主横幅 -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>探索未来科技</h1>
+            <p>创新与品质的完美结合，为每一个人带来科技乐趣</p>
+            <a href="#" class="cta-button">查看产品 <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </section>
+
+    <!-- 产品展示区 -->
+    <section class="products container">
+        <h2 class="section-title">热门产品</h2>
+        <div class="product-grid">
+            <div class="product-card">
+                <div class="product-img">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <div class="product-info">
+                    <h3>Xiaomi 13 Ultra</h3>
+                    <p>徕卡光学摄影，专业影像旗舰</p>
+                    <div class="price">￥5999起</div>
+                </div>
+            </div>
+            <div class="product-card">
+                <div class="product-img">
+                    <i class="fas fa-laptop"></i>
+                </div>
+                <div class="product-info">
+                    <h3>Xiaomi Book Pro 16</h3>
+                    <p>4K OLED大师屏，轻薄性能本</p>
+                    <div class="price">￥6999起</div>
+                </div>
+            </div>
+            <div class="product-card">
+                <div class="product-img">
+                    <i class="fas fa-tv"></i>
+                </div>
+                <div class="product-info">
+                    <h3>小米电视大师 82″</h3>
+                    <p>4K超高清，120Hz刷新率</p>
+                    <div class="price">￥9999</div>
+                </div>
+            </div>
+            <div class="product-card">
+                <div class="product-img">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="product-info">
+                    <h3>Xiaomi Watch S2</h3>
+                    <p>高端时尚腕表，健康管理专家</p>
+                    <div class="price">￥1199起</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 内测宣誓区域 -->
+    <section class="beta-section">
+        <div class="beta-content">
+            <h2>MIUI 15 内测招募</h2>
+            <p>加入MIUI内测计划，率先体验最新系统功能。作为内测成员，您将有机会提前体验未发布的功能，并向我们的开发团队提供宝贵反馈，帮助我们一起改进MIUI。</p>
+            <p>内测成员需要遵守内测协议，对测试内容保密并及时提交使用反馈。</p>
+            <a href="Beta.html" class="beta-button">立即参与内测宣誓 <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>帮助中心</h3>
+                    <ul>
+                        <li><a href="#">账户管理</a></li>
+                        <li><a href="#">购物指南</a></li>
+                        <li><a href="#">订单操作</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>服务支持</h3>
+                    <ul>
+                        <li><a href="#">售后政策</a></li>
+                        <li><a href="#">自助服务</a></li>
+                        <li><a href="#">相关下载</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>线下门店</h3>
+                    <ul>
+                        <li><a href="#">小米之家</a></li>
+                        <li><a href="#">服务网点</a></li>
+                        <li><a href="#">授权体验店</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>关于小米</h3>
+                    <ul>
+                        <li><a href="#">了解小米</a></li>
+                        <li><a href="#">加入小米</a></li>
+                        <li><a href="#">投资者关系</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>© 2023 小米公司 版权所有 | 隐私政策 | 用户协议</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
