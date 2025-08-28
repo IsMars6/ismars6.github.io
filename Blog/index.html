@@ -45,6 +45,32 @@
         .mobile-menu.active {
             max-height: 500px;
         }
+        .search-box {
+            transition: all 0.3s ease;
+            width: 180px;
+        }
+        .search-box:focus-within {
+            width: 240px;
+        }
+        .archive-item {
+            transition: max-height 0.3s ease;
+            overflow: hidden;
+            max-height: 40px;
+        }
+        .archive-item.expanded {
+            max-height: 500px;
+        }
+        .article-content {
+            display: none;
+        }
+        .article-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800">
@@ -54,6 +80,10 @@
             <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">Mars's Blogs</div>
             
             <div class="hidden md:flex items-center space-x-6">
+                <div class="search-box flex items-center bg-gray-100 dark:bg-gray-700 rounded-full px-4 py-2">
+                    <i class="fas fa-search text-gray-500 dark:text-gray-400 mr-2"></i>
+                    <input type="text" placeholder="搜索文章..." class="bg-transparent border-none focus:outline-none w-full text-gray-700 dark:text-gray-300" id="searchInput">
+                </div>
                 <button id="themeToggle" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
                     <i class="fas fa-moon dark:hidden"></i>
                     <i class="fas fa-sun hidden dark:inline"></i>
@@ -68,6 +98,10 @@
         <!-- 移动端菜单 -->
         <div class="mobile-menu md:hidden mt-2 px-2" id="mobileMenu">
             <div class="py-2">
+                <div class="search-box flex items-center bg-gray-100 dark:bg-gray-700 rounded-full px-4 py-2 mb-2">
+                    <i class="fas fa-search text-gray-500 dark:text-gray-400 mr-2"></i>
+                    <input type="text" placeholder="搜索文章..." class="bg-transparent border-none focus:outline-none w-full text-gray-700 dark:text-gray-300">
+                </div>
                 <button id="mobileThemeToggle" class="w-full text-left px-4 py-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center">
                     <i class="fas fa-moon dark:hidden mr-2"></i>
                     <i class="fas fa-sun hidden dark:inline mr-2"></i>
@@ -79,73 +113,122 @@
 
     <!-- 主内容区 -->
     <main class="container mx-auto py-8 px-4 md:px-6">
-        <div class="flex flex-col md:flex-row gap-8">
+        <!-- 文章列表视图 -->
+        <div id="articleListView" class="flex flex-col md:flex-row gap-8">
             <!-- 文章列表 -->
             <div class="md:w-2/3">
                 <h2 class="text-2xl font-bold mb-6 dark:text-white">最新文章</h2>
                 
                 <!-- 文章卡片 -->
-                <div class="space-y-6">
-                    <article class="card bg-white rounded-lg shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+                <div class="space-y-6" id="articleList">
+                    <article class="card bg-white rounded-lg shadow-sm p-6 border border-gray-100 dark:bg-gray-800 dark:border-gray-700" data-id="1">
                         <h3 class="text-xl font-bold mb-2 dark:text-white">React Hooks 最佳实践</h3>
                         <div class="text-sm text-gray-500 mb-4 dark:text-gray-400">
-                            <span>2023-10-15</span> · <span>技术笔记</span>
+                            <span>2023-10-15</span> · <span>技术笔记</span> · <span>5分钟阅读</span>
                         </div>
                         <p class="text-gray-600 dark:text-gray-300 mb-4">
                             本文探讨了React Hooks在实际项目中的应用技巧，包括useEffect的依赖项优化、自定义Hook的设计模式以及如何避免常见陷阱。
                         </p>
-                        <a href="#" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium">阅读更多 →</a>
+                        <a href="#" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium read-more">阅读更多 →</a>
                     </article>
                     
-                    <article class="card bg-white rounded-lg shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+                    <article class="card bg-white rounded-lg shadow-sm p-6 border border-gray-100 dark:bg-gray-800 dark:border-gray-700" data-id="2">
                         <h3 class="text-xl font-bold mb-2 dark:text-white">极简生活的艺术</h3>
                         <div class="text-sm text-gray-500 mb-4 dark:text-gray-400">
-                            <span>2023-09-28</span> · <span>生活方式</span>
+                            <span>2023-09-28</span> · <span>生活方式</span> · <span>7分钟阅读</span>
                         </div>
                         <p class="text-gray-600 dark:text-gray-300 mb-4">
                             在物质丰富的时代，如何通过极简主义找到生活的本质？本文分享了我实践极简生活一年来的心得体会和实用技巧。
                         </p>
-                        <a href="#" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium">阅读更多 →</a>
+                        <a href="#" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium read-more">阅读更多 →</a>
                     </article>
                     
-                    <article class="card bg-white rounded-lg shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+                    <article class="card bg-white rounded-lg shadow-sm p-6 border border-gray-100 dark:bg-gray-800 dark:border-gray-700" data-id="3">
                         <h3 class="text-xl font-bold mb-2 dark:text-white">2023年阅读总结</h3>
                         <div class="text-sm text-gray-500 mb-4 dark:text-gray-400">
-                            <span>2023-09-15</span> · <span>阅读笔记</span>
+                            <span>2023-09-15</span> · <span>阅读笔记</span> · <span>8分钟阅读</span>
                         </div>
                         <p class="text-gray-600 dark:text-gray-300 mb-4">
                             今年我读了32本书，从科幻小说到哲学著作。本文分享我最喜欢的5本书以及它们如何改变了我的思维方式。
                         </p>
-                        <a href="#" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium">阅读更多 →</a>
+                        <a href="#" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium read-more">阅读更多 →</a>
                     </article>
                     
-                    <article class="card bg-white rounded-lg shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+                    <article class="card bg-white rounded-lg shadow-sm p-6 border border-gray-100 dark:bg-gray-800 dark:border-gray-700" data-id="4">
                         <h3 class="text-xl font-bold mb-2 dark:text-white">TypeScript 类型体操入门</h3>
                         <div class="text-sm text-gray-500 mb-4 dark:text-gray-400">
-                            <span>2023-08-22</span> · <span>技术笔记</span>
+                            <span>2023-08-22</span> · <span>技术笔记</span> · <span>6分钟阅读</span>
                         </div>
                         <p class="text-gray-600 dark:text-gray-300 mb-4">
                             TypeScript的高级类型系统可以解决许多复杂问题。本文通过实际案例演示如何利用条件类型、映射类型和模板字面量类型构建强大的类型工具。
                         </p>
-                        <a href="#" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium">阅读更多 →</a>
+                        <a href="#" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium read-more">阅读更多 →</a>
                     </article>
                     
-                    <article class="card bg-white rounded-lg shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+                    <article class="card bg-white rounded-lg shadow-sm p-6 border border-gray-100 dark:bg-gray-800 dark:border-gray-700" data-id="5">
                         <h3 class="text-xl font-bold mb-2 dark:text-white">数字游民的生活实验</h3>
                         <div class="text-sm text-gray-500 mb-4 dark:text-gray-400">
-                            <span>2023-08-05</span> · <span>生活方式</span>
+                            <span>2023-08-05</span> · <span>生活方式</span> · <span>9分钟阅读</span>
                         </div>
                         <p class="text-gray-600 dark:text-gray-300 mb-4">
                             过去六个月，我在五个不同国家远程工作。本文分享数字游民生活方式的利弊、实用工具包以及如何保持工作效率的经验。
                         </p>
-                        <a href="#" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium">阅读更多 →</a>
+                        <a href="#" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium read-more">阅读更多 →</a>
+                    </article>
+                    
+                    <article class="card bg-white rounded-lg shadow-sm p-6 border border-gray-100 dark:bg-gray-800 dark:border-gray-700" data-id="6">
+                        <h3 class="text-xl font-bold mb-2 dark:text-white">前端框架对比：React vs Vue vs Svelte</h3>
+                        <div class="text-sm text-gray-500 mb-4 dark:text-gray-400">
+                            <span>2023-07-18</span> · <span>技术笔记</span> · <span>10分钟阅读</span>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-300 mb-4">
+                            本文从性能、学习曲线、生态系统和开发体验四个维度对比了三大前端框架，帮助开发者根据项目需求做出选择。
+                        </p>
+                        <a href="#" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium read-more">阅读更多 →</a>
+                    </article>
+                    
+                    <article class="card bg-white rounded-lg shadow-sm p-6 border border-gray-100 dark:bg-gray-800 dark:border-gray-700" data-id="7">
+                        <h3 class="text-xl font-bold mb-2 dark:text-white">极简主义收纳指南</h3>
+                        <div class="text-sm text-gray-500 mb-4 dark:text-gray-400">
+                            <span>2023-06-30</span> · <span>生活方式</span> · <span>6分钟阅读</span>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-300 mb-4">
+                            通过简单的收纳原则和实用技巧，让你的生活空间更加整洁有序，减少物品带来的心理负担。
+                        </p>
+                        <a href="#" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium read-more">阅读更多 →</a>
+                    </article>
+                    
+                    <article class="card bg-white rounded-lg shadow-sm p-6 border border-gray-100 dark:bg-gray-800 dark:border-gray-700" data-id="8">
+                        <h3 class="text-xl font-bold mb-2 dark:text-white">年度书单推荐：2023年最佳读物</h3>
+                        <div class="text-sm text-gray-500 mb-4 dark:text-gray-400">
+                            <span>2023-06-15</span> · <span>阅读笔记</span> · <span>8分钟阅读</span>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-300 mb-4">
+                            从科幻小说到商业管理，从哲学思考到个人成长，这份书单涵盖了2023年最值得阅读的12本书籍。
+                        </p>
+                        <a href="#" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium read-more">阅读更多 →</a>
                     </article>
                 </div>
             </div>
             
             <!-- 侧边栏 -->
             <div class="md:w-1/3">
-                <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100 dark:bg-gray-800 dark:border-gray-700 sticky top-6">
+                <!-- 作者信息 -->
+                <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100 dark:bg-gray-800 dark:border-gray-700 mb-6">
+                    <div class="flex flex-col items-center text-center">
+                        <img src="https://s.coze.cn/image/2ob8CKwdOIg/" alt="Mars" class="w-24 h-24 rounded-full mb-4 object-cover">
+                        <h3 class="text-xl font-bold mb-1 dark:text-white">Mars</h3>
+                        <p class="text-gray-600 dark:text-gray-300 mb-4">前端开发者 & 极简生活实践者</p>
+                        <div class="flex space-x-4">
+                            <a href="#" class="text-gray-500 hover:text-blue-600 dark:hover:text-blue-400"><i class="fab fa-github text-xl"></i></a>
+                            <a href="#" class="text-gray-500 hover:text-blue-400 dark:hover:text-blue-400"><i class="fab fa-twitter text-xl"></i></a>
+                            <a href="#" class="text-gray-500 hover:text-red-500 dark:hover:text-red-400"><i class="fas fa-envelope text-xl"></i></a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 分类标签 -->
+                <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100 dark:bg-gray-800 dark:border-gray-700 mb-6">
                     <h2 class="text-xl font-bold mb-4 dark:text-white">分类标签</h2>
                     <div class="flex flex-wrap gap-2">
                         <button class="tag px-3 py-1 rounded-full border border-gray-200 text-sm hover:bg-blue-600 hover:text-white dark:border-gray-600 dark:text-gray-300" data-category="技术笔记">技术笔记</button>
@@ -156,13 +239,232 @@
                         <button class="tag px-3 py-1 rounded-full border border-gray-200 text-sm hover:bg-blue-600 hover:text-white dark:border-gray-600 dark:text-gray-300" data-category="科技趋势">科技趋势</button>
                     </div>
                 </div>
+                
+                <!-- 文章归档 -->
+                <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100 dark:bg-gray-800 dark:border-gray-700">
+                    <h2 class="text-xl font-bold mb-4 dark:text-white">文章归档</h2>
+                    <div class="space-y-2">
+                        <div class="archive-item">
+                            <button class="w-full text-left flex justify-between items-center py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-700 archive-toggle">
+                                <span>2023年10月</span>
+                                <i class="fas fa-chevron-down text-xs"></i>
+                            </button>
+                            <div class="pl-4 pt-1">
+                                <a href="#" class="block py-1 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-700">React Hooks 最佳实践</a>
+                            </div>
+                        </div>
+                        <div class="archive-item">
+                            <button class="w-full text-left flex justify-between items-center py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-700 archive-toggle">
+                                <span>2023年9月</span>
+                                <i class="fas fa-chevron-down text-xs"></i>
+                            </button>
+                            <div class="pl-4 pt-1">
+                                <a href="#" class="block py-1 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-700">极简生活的艺术</a>
+                                <a href="#" class="block py-1 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-700">2023年阅读总结</a>
+                            </div>
+                        </div>
+                        <div class="archive-item">
+                            <button class="w-full text-left flex justify-between items-center py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-700 archive-toggle">
+                                <span>2023年8月</span>
+                                <i class="fas fa-chevron-down text-xs"></i>
+                            </button>
+                            <div class="pl-4 pt-1">
+                                <a href="#" class="block py-1 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-700">TypeScript 类型体操入门</a>
+                                <a href="#" class="block py-1 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-700">数字游民的生活实验</a>
+                            </div>
+                        </div>
+                        <div class="archive-item">
+                            <button class="w-full text-left flex justify-between items-center py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-700 archive-toggle">
+                                <span>2023年7月</span>
+                                <i class="fas fa-chevron-down text-xs"></i>
+                            </button>
+                            <div class="pl-4 pt-1">
+                                <a href="#" class="block py-1 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-700">前端框架对比</a>
+                            </div>
+                        </div>
+                        <div class="archive-item">
+                            <button class="w-full text-left flex justify-between items-center py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-700 archive-toggle">
+                                <span>2023年6月</span>
+                                <i class="fas fa-chevron-down text-xs"></i>
+                            </button>
+                            <div class="pl-4 pt-1">
+                                <a href="#" class="block py-1 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-700">极简主义收纳指南</a>
+                                <a href="#" class="block py-1 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-700">年度书单推荐</a>
+                            </div>
+                        </div>
+                        <div class="archive-item">
+                            <button class="w-full text-left flex justify-between items-center py-2 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-700 archive-toggle">
+                                <span>2023年5月</span>
+                                <i class="fas fa-chevron-down text-xs"></i>
+                            </button>
+                            <div class="pl-4 pt-1">
+                                <a href="#" class="block py-1 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-700">CSS Grid 布局指南</a>
+                                <a href="#" class="block py-1 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-700">冥想入门指南</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 文章详情视图 -->
+        <div id="articleDetailView" class="hidden">
+            <div class="flex flex-col md:flex-row gap-8">
+                <!-- 文章内容 -->
+                <div class="md:w-2/3">
+                    <button id="backToList" class="flex items-center text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 mb-6">
+                        <i class="fas fa-arrow-left mr-2"></i> 返回列表
+                    </button>
+                    
+                    <!-- 文章内容容器 -->
+                    <div id="articleContentContainer">
+                        <!-- 文章1 -->
+                        <div class="article-content" data-id="1">
+                            <h1 class="text-3xl font-bold mb-4 dark:text-white">React Hooks 最佳实践</h1>
+                            <div class="text-sm text-gray-500 mb-6 dark:text-gray-400">
+                                <span>2023-10-15</span> · <span>技术笔记</span> · <span>5分钟阅读</span>
+                            </div>
+                            
+                            <div class="prose dark:prose-invert max-w-none mb-8">
+                                <h2>目录</h2>
+                                <ul>
+                                    <li><a href="#section1" class="text-blue-600 dark:text-blue-400">useEffect 的依赖项优化</a></li>
+                                    <li><a href="#section2" class="text-blue-600 dark:text-blue-400">自定义 Hook 的设计模式</a></li>
+                                    <li><a href="#section3" class="text-blue-600 dark:text-blue-400">常见陷阱与解决方案</a></li>
+                                </ul>
+                                
+                                <h2 id="section1">useEffect 的依赖项优化</h2>
+                                <p>useEffect 是 React Hooks 中最常用的 Hook 之一，但也是最容易误用的。正确的依赖项管理是保证 useEffect 按预期工作的关键。</p>
+                                <p>首先，我们应该遵循 React 的规则：所有在 effect 中引用的值都应该出现在依赖项数组中。这包括 props、state 和任何在组件外部定义但在 effect 内部使用的变量。</p>
+                                <pre><code>// 正确示例
+useEffect(() => {
+    const fetchData = async () => {
+        const result = await fetch(`/api/data?id=${id}`);
+        setData(result);
+    };
+    fetchData();
+}, [id]); // id 是依赖项</code></pre>
+                                
+                                <h2 id="section2">自定义 Hook 的设计模式</h2>
+                                <p>自定义 Hook 是 React Hooks 最强大的特性之一，它让我们能够提取组件逻辑到可重用的函数中。</p>
+                                <p>一个好的自定义 Hook 应该：</p>
+                                <ul>
+                                    <li>专注于单一职责</li>
+                                    <li>有清晰的输入和输出</li>
+                                    <li>遵循 React Hooks 的规则</li>
+                                </ul>
+                                
+                                <h2 id="section3">常见陷阱与解决方案</h2>
+                                <p>在使用 React Hooks 时，开发者经常会遇到一些常见问题：</p>
+                                <ul>
+                                    <li>无限循环：通常是由于在 useEffect 中更新了依赖项导致</li>
+                                    <li>过时的闭包：使用 useCallback 和 useRef 可以解决</li>
+                                    <li>性能问题：使用 useMemo 和 useCallback 优化</li>
+                                </ul>
+                            </div>
+                            
+                            <!-- 评论区 -->
+                            <div class="mt-12">
+                                <h3 class="text-xl font-bold mb-6 dark:text-white">评论 (3)</h3>
+                                <div class="space-y-4 mb-8">
+                                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                                        <div class="flex items-center mb-2">
+                                            <img src="https://s.coze.cn/image/INpWN0nXxFU/" alt="用户头像" class="w-8 h-8 rounded-full mr-3">
+                                            <span class="font-medium dark:text-white">前端开发者</span>
+                                            <span class="text-gray-500 dark:text-gray-400 text-sm ml-2">2023-10-16</span>
+                                        </div>
+                                        <p class="text-gray-700 dark:text-gray-300">非常实用的文章，特别是关于依赖项管理的部分，解决了我项目中的一个大问题！</p>
+                                    </div>
+                                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                                        <div class="flex items-center mb-2">
+                                            <img src="https://s.coze.cn/image/WwS0V1y4NnI/" alt="用户头像" class="w-8 h-8 rounded-full mr-3">
+                                            <span class="font-medium dark:text-white">React爱好者</span>
+                                            <span class="text-gray-500 dark:text-gray-400 text-sm ml-2">2023-10-17</span>
+                                        </div>
+                                        <p class="text-gray-700 dark:text-gray-300">能否再详细介绍一下 useReducer 的使用场景？</p>
+                                    </div>
+                                    <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                                        <div class="flex items-center mb-2">
+                                            <img src="https://s.coze.cn/image/RknUczXaZAI/" alt="用户头像" class="w-8 h-8 rounded-full mr-3">
+                                            <span class="font-medium dark:text-white">全栈工程师</span>
+                                            <span class="text-gray-500 dark:text-gray-400 text-sm ml-2">2023-10-18</span>
+                                        </div>
+                                        <p class="text-gray-700 dark:text-gray-300">感谢分享，期待更多关于性能优化的内容！</p>
+                                    </div>
+                                </div>
+                                
+                                <!-- 评论输入框 -->
+                                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-100 dark:border-gray-700">
+                                    <h4 class="text-lg font-bold mb-4 dark:text-white">发表评论</h4>
+                                    <textarea class="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white mb-4" placeholder="写下你的想法..." rows="4"></textarea>
+                                    <button class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors">提交评论</button>
+                                </div>
+                            </div>
+                            
+                            <!-- 相关文章 -->
+                            <div class="mt-12">
+                                <h3 class="text-xl font-bold mb-6 dark:text-white">相关文章</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div class="card bg-white rounded-lg shadow-sm p-4 border border-gray-100 dark:bg-gray-800 dark:border-gray-700">
+                                        <h4 class="font-bold mb-1 dark:text-white">React Context 深入解析</h4>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400 mb-2">
+                                            <span>2023-09-02</span> · <span>6分钟阅读</span>
+                                        </div>
+                                        <p class="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">深入探讨 React Context 的工作原理和最佳实践。</p>
+                                    </div>
+                                    <div class="card bg-white rounded-lg shadow-sm p-4 border border-gray-100 dark:bg-gray-800 dark:border-gray-700">
+                                        <h4 class="font-bold mb-1 dark:text-white">TypeScript 与 React 结合指南</h4>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400 mb-2">
+                                            <span>2023-08-15</span> · <span>7分钟阅读</span>
+                                        </div>
+                                        <p class="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">如何在 React 项目中充分利用 TypeScript 的类型系统。</p>
+                                    </div>
+                                    <div class="card bg-white rounded-lg shadow-sm p-4 border border-gray-100 dark:bg-gray-800 dark:border-gray-700">
+                                        <h4 class="font-bold mb-1 dark:text-white">前端性能优化实战</h4>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400 mb-2">
+                                            <span>2023-07-28</span> · <span>8分钟阅读</span>
+                                        </div>
+                                        <p class="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">提升 React 应用性能的实用技巧和工具。</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- 其他文章内容省略，实际实现中应包括所有8篇文章的完整内容 -->
+                    </div>
+                </div>
+                
+                <!-- 侧边栏 -->
+                <div class="md:w-1/3">
+                    <!-- 作者信息 -->
+                    <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100 dark:bg-gray-800 dark:border-gray-700 mb-6">
+                        <div class="flex flex-col items-center text-center">
+                            <img src="https://s.coze.cn/image/8WUQ_krlZO8/" alt="Mars" class="w-24 h-24 rounded-full mb-4 object-cover">
+                            <h3 class="text-xl font-bold mb-1 dark:text-white">Mars</h3>
+                            <p class="text-gray-600 dark:text-gray-300 mb-4">前端开发者 & 极简生活实践者</p>
+                            <div class="flex space-x-4">
+                                <a href="#" class="text-gray-500 hover:text-blue-600 dark:hover:text-blue-400"><i class="fab fa-github text-xl"></i></a>
+                                <a href="#" class="text-gray-500 hover:text-blue-400 dark:hover:text-blue-400"><i class="fab fa-twitter text-xl"></i></a>
+                                <a href="#" class="text-gray-500 hover:text-red-500 dark:hover:text-red-400"><i class="fas fa-envelope text-xl"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 文章目录 -->
+                    <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-100 dark:bg-gray-800 dark:border-gray-700 mb-6 sticky top-6" id="articleToc">
+                        <h3 class="text-lg font-bold mb-4 dark:text-white">目录</h3>
+                        <div class="space-y-2" id="tocContent">
+                            <!-- 目录内容由JS动态生成 -->
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
 
     <footer class="bg-white py-6 border-t border-gray-100 dark:bg-gray-800 dark:border-gray-700">
         <div class="container mx-auto px-4 text-center text-gray-500 dark:text-gray-400">
-            <p>© 2023 Mars's Blogs. All rights reserved.</p>
+            <p>© 2025 Mars's Blogs. All rights reserved.</p>
         </div>
     </footer>
 
@@ -205,6 +507,118 @@
                 // 这里可以添加实际的筛选逻辑
                 console.log(`筛选分类: ${tag.dataset.category}`);
             });
+        });
+        
+        // 归档折叠功能
+        const archiveToggles = document.querySelectorAll('.archive-toggle');
+        archiveToggles.forEach(toggle => {
+            toggle.addEventListener('click', () => {
+                const archiveItem = toggle.closest('.archive-item');
+                archiveItem.classList.toggle('expanded');
+                const icon = toggle.querySelector('i');
+                icon.classList.toggle('fa-chevron-down');
+                icon.classList.toggle('fa-chevron-up');
+            });
+        });
+        
+        // 搜索功能
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                const articles = document.querySelectorAll('#articleList article');
+                
+                articles.forEach(article => {
+                    const title = article.querySelector('h3').textContent.toLowerCase();
+                    const summary = article.querySelector('p').textContent.toLowerCase();
+                    
+                    if (title.includes(searchTerm) || summary.includes(searchTerm)) {
+                        article.style.display = 'block';
+                    } else {
+                        article.style.display = 'none';
+                    }
+                });
+            });
+        }
+        
+        // 文章详情页功能
+        const articleListView = document.getElementById('articleListView');
+        const articleDetailView = document.getElementById('articleDetailView');
+        const backToList = document.getElementById('backToList');
+        const articleContents = document.querySelectorAll('.article-content');
+        
+        // 点击"阅读更多"显示文章详情
+        document.querySelectorAll('.read-more').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const articleId = link.closest('article').getAttribute('data-id');
+                
+                // 显示详情视图
+                articleListView.classList.add('hidden');
+                articleDetailView.classList.remove('hidden');
+                
+                // 显示对应文章内容
+                articleContents.forEach(content => {
+                    content.classList.remove('active');
+                    if (content.getAttribute('data-id') === articleId) {
+                        content.classList.add('active');
+                        
+                        // 生成目录
+                        generateToc(content);
+                    }
+                });
+                
+                // 滚动到顶部
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        });
+        
+        // 返回列表按钮
+        backToList.addEventListener('click', () => {
+            articleDetailView.classList.add('hidden');
+            articleListView.classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+        
+        // 生成文章目录
+        function generateToc(articleContent) {
+            const tocContent = document.getElementById('tocContent');
+            tocContent.innerHTML = '';
+            
+            const headings = articleContent.querySelectorAll('h2, h3');
+            headings.forEach(heading => {
+                const level = heading.tagName.toLowerCase();
+                const id = heading.getAttribute('id');
+                
+                if (id) {
+                    const tocItem = document.createElement('a');
+                    tocItem.href = `#${id}`;
+                    tocItem.className = 'block py-1 px-3 rounded hover:bg-gray-100 dark:hover:bg-gray-700 text-sm';
+                    tocItem.textContent = heading.textContent;
+                    
+                    if (level === 'h3') {
+                        tocItem.className += ' ml-4';
+                    }
+                    
+                    tocContent.appendChild(tocItem);
+                }
+            });
+        }
+        
+        // 文章内平滑滚动
+        document.addEventListener('click', (e) => {
+            if (e.target.matches('#tocContent a') || e.target.matches('.prose a[href^="#"]')) {
+                e.preventDefault();
+                const targetId = e.target.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 20,
+                        behavior: 'smooth'
+                    });
+                }
+            }
         });
     </script>
 </body>
