@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webhook POST 工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        body {
+            background-color: #f5f7fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        /* 卡片容器：带阴影、圆角，提升质感 */
+        .webhook-card {
+            background: white;
+            width: 100%;
+            max-width: 600px;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        h2 {
+            color: #2d3748;
+            font-size: 22px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        /* 输入框样式：聚焦时有边框高亮 */
+        .input-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            color: #4a5568;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #4299e1;
+            box-shadow: 0 0 0 2px rgba(66,153,225,0.2);
+        }
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+            line-height: 1.5;
+        }
+        /* 按钮样式：hover 有反馈，加载时禁用 */
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #4299e1;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .submit-btn:hover:not(:disabled) {
+            background-color: #3182ce;
+        }
+        .submit-btn:disabled {
+            background-color: #a0bfff;
+            cursor: not-allowed;
+        }
+        /* 结果提示：成功/失败区分颜色 */
+        .result {
+            margin-top: 20px;
+            padding: 12px 15px;
+            border-radius: 6px;
+            font-size: 14px;
+            display: none;
+        }
+        .success {
+            background-color: #f0fff4;
+            color: #22543d;
+            border: 1px solid #c6f6d5;
+            display: block;
+        }
+        .error {
+            background-color: #fff5f5;
+            color: #742a2a;
+            border: 1px solid #fed7d7;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="webhook-card">
+        <h2>Webhook 信息发送工具</h2>
+        
+        <!-- Webhook 链接输入 -->
+        <div class="input-group">
+            <label for="webhookUrl">Webhook 链接</label>
+            <input type="url" id="webhookUrl" placeholder="例如：https://your-webhook-url.com" required>
+        </div>
+
+        <!-- 发送数据输入（JSON格式） -->
+        <div class="input-group">
+            <label for="postData">发送数据（JSON格式）</label>
+            <textarea id="postData" placeholder='例如：{"content":"Hello Webhook","timestamp":"2024-05-20"}' required></textarea>
+        </div>
+
+        <!-- 发送按钮 -->
+        <button class="submit-btn" onclick="sendToWebhook()">发送 POST 请求</button>
+
+        <!-- 结果提示框 -->
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        function sendToWebhook() {
+            // 获取页面元素
+            const webhookUrl = document.getElementById("webhookUrl").value;
+            const postDataInput = document.getElementById("postData").value;
+            const submitBtn = document.querySelector(".submit-btn");
+            const resultBox = document.getElementById("result");
+
+            // 1. 清空之前的结果，设置按钮为加载状态
+            resultBox.className = "result";
+            submitBtn.disabled = true;
+            submitBtn.textContent = "发送中...";
+
+            // 2. 验证并解析 JSON 数据（避免格式错误）
+            let postData;
+            try {
+                postData = JSON.parse(postDataInput);
+            } catch (error) {
+                resultBox.className = "result error";
+                resultBox.textContent = "❌ 数据格式错误：请输入合法的 JSON 格式";
+                submitBtn.disabled = false;
+                submitBtn.textContent = "发送 POST 请求";
+                return;
+            }
+
+            // 3. 发起 POST 请求
+            fetch(webhookUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "*/*"
+                },
+                body: JSON.stringify(postData),
+                timeout: 10000 // 10秒超时，避免长期无响应
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.text().then(text => ({ isSuccess: true, data: text }));
+                } else {
+                    return response.text().then(text => ({ isSuccess: false, data: text, status: response.status }));
+                }
+            })
+            .then(result => {
+                if (result.isSuccess) {
+                    resultBox.className = "result success";
+                    resultBox.textContent = `✅ 发送成功！响应内容：${result.data || "无返回内容"}`;
+                } else {
+                    resultBox.className = "result error";
+                    resultBox.textContent = `❌ 发送失败（状态码：${result.status}）：${result.data || "无错误信息"}`;
+                }
+            })
+            .catch(error => {
+                resultBox.className = "result error";
+                resultBox.textContent = `❌ 请求出错：${error.message}（可能是链接不可达或网络问题）`;
+            })
+            .finally(() => {
+                // 4. 恢复按钮状态
+                submitBtn.disabled = false;
+                submitBtn.textContent = "发送 POST 请求";
+            });
+        }
+    </script>
+</body>
+</html>
