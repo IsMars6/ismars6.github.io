@@ -1112,15 +1112,14 @@
             createClickFeedback(elements.menuBtn);
         }
 
-        // 处理刷新
+        // 处理刷新 - 修正：保持天气数据不变，仅更新时间戳
         function handleRefresh() {
             // 添加刷新动画
             elements.refreshBtn.classList.add('refreshing');
             createClickFeedback(elements.refreshBtn);
             
-            showNotification('正在刷新天气数据...', 'info');
+            showNotification('正在刷新...', 'info');
             
-            // 模拟刷新过程
             setTimeout(() => {
                 if (AppState.locations.length === 0) {
                     showNotification('暂无地区可刷新', 'error');
@@ -1128,13 +1127,19 @@
                     return;
                 }
 
-                // 刷新所有地区数据
+                // 刷新所有地区数据 - 保持原有天气，仅更新时间戳
                 showLoading(true);
                 let completed = 0;
                 
                 AppState.locations.forEach((location, index) => {
                     setTimeout(() => {
-                        location.data = generateMockWeather(location.name);
+                        // 如果已有数据，保持不变，仅更新最后更新时间
+                        if (location.data) {
+                            location.data.lastUpdate = new Date().toLocaleTimeString('zh-CN', {hour: '2-digit', minute: '2-digit'});
+                        } else {
+                            // 如果没有数据，生成新的（基于地区名称确定性生成）
+                            location.data = generateMockWeather(location.name);
+                        }
                         completed++;
                         
                         if (completed === AppState.locations.length) {
@@ -1146,7 +1151,7 @@
                             }
                             
                             showLoading(false);
-                            showNotification('刷新完成', 'success');
+                            showNotification('刷新完成（数据保持不变）', 'success');
                             elements.refreshBtn.classList.remove('refreshing');
                         }
                     }, 300 * index);
@@ -1301,7 +1306,6 @@
                 const item = document.createElement('div');
                 item.className = `location-item ${index === AppState.currentIndex ? 'active' : ''}`;
                 
-                // 修正了HTML字符串拼接错误
                 const tempHtml = location.data ? `
                     <div class="temp">${location.data.temperature}°C</div>
                     <div class="condition">${location.data.description}</div>
@@ -1340,6 +1344,7 @@
             
             // 模拟API调用
             setTimeout(() => {
+                // 使用确定性生成，确保同一地区总是相同天气
                 const mockData = generateMockWeather(location.name);
                 location.data = mockData;
                 saveToStorage();
@@ -1350,16 +1355,24 @@
             }, 1000);
         }
 
-        // 生成模拟天气数据
+        // 生成模拟天气数据 - 修正：基于地区名称生成确定性数据
         function generateMockWeather(location) {
-            const conditions = ['Clear', 'Clouds', 'Rain', 'Thunderstorm', 'Snow', 'Mist', 'Fog', 'Haze'];
-            const condition = conditions[Math.floor(Math.random() * conditions.length)];
+            // 使用地区名称的哈希值来确定天气（同一地区总是相同）
+            let hash = 0;
+            for (let i = 0; i < location.length; i++) {
+                hash = location.charCodeAt(i) + ((hash << 5) - hash);
+            }
             
-            const temp = Math.floor(Math.random() * 30) + 5;
-            const humidity = Math.floor(Math.random() * 50) + 40;
-            const windSpeed = (Math.random() * 10 + 1).toFixed(1);
-            const pressure = Math.floor(Math.random() * 50) + 1000;
-            const feelsLike = temp + Math.floor(Math.random() * 5) - 2;
+            const conditions = ['Clear', 'Clouds', 'Rain', 'Thunderstorm', 'Snow', 'Mist', 'Fog', 'Haze'];
+            const conditionIndex = Math.abs(hash) % conditions.length;
+            const condition = conditions[conditionIndex];
+            
+            // 基于哈希值生成温度等参数
+            const temp = 10 + (Math.abs(hash) % 20); // 10-30度
+            const humidity = 40 + (Math.abs(hash >> 2) % 50); // 40-90%
+            const windSpeed = (1 + (Math.abs(hash >> 3) % 10)).toFixed(1); // 1-10 m/s
+            const pressure = 1000 + (Math.abs(hash >> 4) % 50); // 1000-1050 hPa
+            const feelsLike = temp + (Math.abs(hash >> 5) % 5) - 2; // temp ±2
 
             return {
                 location: location,
@@ -1369,7 +1382,8 @@
                 humidity: humidity,
                 windSpeed: windSpeed,
                 pressure: pressure,
-                feelsLike: feelsLike
+                feelsLike: feelsLike,
+                lastUpdate: new Date().toLocaleTimeString('zh-CN', {hour: '2-digit', minute: '2-digit'})
             };
         }
 
@@ -1419,7 +1433,7 @@
             }
         }
 
-        // 创建天气卡片 - 修正了函数
+        // 创建天气卡片
         function createWeatherCard(location, index) {
             const card = document.createElement('div');
             card.className = 'weather-card active';
@@ -1428,7 +1442,6 @@
             const data = location.data;
             const iconClass = weatherIcons[data.condition] || 'fa-cloud';
 
-            // 修正了HTML字符串，删除了重复代码
             card.innerHTML = `
                 <div class="weather-info">
                     <div class="city-name">
@@ -1464,7 +1477,7 @@
                         </div>
                         <div class="detail-card">
                             <div class="label">最后更新</div>
-                            <div class="value">${new Date().toLocaleTimeString('zh-CN', {hour: '2-digit', minute: '2-digit'})}</div>
+                            <div class="value">${data.lastUpdate}</div>
                         </div>
                     </div>
                 </div>
@@ -1808,8 +1821,12 @@
                 let completed = 0;
                 AppState.locations.forEach((location, index) => {
                     setTimeout(() => {
-                        const mockData = generateMockWeather(location.name);
-                        location.data = mockData;
+                        // 保持原有数据，仅更新时间戳
+                        if (location.data) {
+                            location.data.lastUpdate = new Date().toLocaleTimeString('zh-CN', {hour: '2-digit', minute: '2-digit'});
+                        } else {
+                            location.data = generateMockWeather(location.name);
+                        }
                         completed++;
                         if (completed === AppState.locations.length) {
                             saveToStorage();
@@ -1818,7 +1835,7 @@
                                 showWeatherCard(AppState.currentIndex);
                             }
                             showLoading(false);
-                            showNotification('所有地区天气已更新', 'success');
+                            showNotification('设置已保存，数据已更新', 'success');
                         }
                     }, 300 * index);
                 });
