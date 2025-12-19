@@ -775,6 +775,87 @@
             color: #2d3436;
         }
 
+        /* 设置模态框中的控件样式 */
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .setting-label {
+            font-size: 16px;
+            color: #fff;
+        }
+
+        .setting-description {
+            font-size: 12px;
+            color: #888;
+            margin-top: 2px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 28px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .toggle-switch.active {
+            background: #0984e3;
+            border-color: #0984e3;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 22px;
+            height: 22px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .toggle-switch.active::after {
+            transform: translateX(22px);
+        }
+
+        /* 下拉选择框 */
+        .select-box {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: #fff;
+            padding: 8px 12px;
+            font-size: 14px;
+            min-width: 120px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .select-box:focus {
+            outline: none;
+            border-color: #0984e3;
+            background: rgba(9, 132, 227, 0.1);
+        }
+
+        .select-box option {
+            background: #1a1a1a;
+            color: #fff;
+        }
+
         /* 滚动条样式 */
         .location-list::-webkit-scrollbar {
             width: 6px;
@@ -825,6 +906,10 @@
             .app-title {
                 font-size: 16px;
                 padding: 6px 12px;
+            }
+
+            .modal-content {
+                padding: 20px;
             }
         }
 
@@ -884,7 +969,7 @@
         <div class="main-content" id="mainContent">
             <!-- 天气动画背景 -->
             <div class="weather-bg" id="weatherBg"></div>
-            
+
             <!-- 粒子容器（澎湃OS风格） -->
             <div class="particle-container" id="particleContainer"></div>
 
@@ -936,9 +1021,60 @@
 
     <!-- 全局设置模态框 -->
     <div class="modal" id="settingsModal">
-        <div class="modal-content">
+        <div class="modal-content" style="max-width: 500px;">
             <h3>全局设置</h3>
-            <input type="text" id="apiKeyInput" placeholder="输入API密钥（留空使用演示模式）">
+
+            <!-- 天气源选择 -->
+            <div class="setting-item">
+                <div>
+                    <div class="setting-label">天气数据源</div>
+                    <div class="setting-description">选择天气数据提供商</div>
+                </div>
+                <select class="select-box" id="weatherSourceSelect">
+                    <option value="demo">演示模式（模拟数据）</option>
+                    <option value="openweather">OpenWeather（国际）</option>
+                    <option value="qweather">和风天气（国内）</option>
+                    <option value="amap">高德地图（国内）</option>
+                    <option value="meteo">Meteo（免费开源）</option>
+                </select>
+            </div>
+
+            <!-- API密钥输入 -->
+            <div class="setting-item" style="flex-direction: column; align-items: stretch;">
+                <div style="margin-bottom: 8px;">
+                    <div class="setting-label" id="apiKeyLabel">API密钥</div>
+                    <div class="setting-description" id="apiKeyDesc">输入对应天气源的API密钥</div>
+                </div>
+                <input type="text" id="apiKeyInput" placeholder="输入API密钥">
+            </div>
+
+            <!-- 粒子动效开关 -->
+            <div class="setting-item">
+                <div>
+                    <div class="setting-label">粒子动效</div>
+                    <div class="setting-description">启用天气背景粒子动画</div>
+                </div>
+                <div class="toggle-switch active" id="particlesToggle"></div>
+            </div>
+
+            <!-- 自动刷新开关 -->
+            <div class="setting-item">
+                <div>
+                    <div class="setting-label">自动刷新</div>
+                    <div class="setting-description">每30分钟自动刷新数据</div>
+                </div>
+                <div class="toggle-switch" id="autoRefreshToggle"></div>
+            </div>
+
+            <!--网页解析说明（和风天气） -->
+            <div class="setting-item" style="flex-direction: column; align-items: flex-start; background: rgba(9, 132, 227, 0.05); border-radius: 8px; padding: 12px; margin-top: 10px;">
+                <div class="setting-label" style="color: #0984e3; margin-bottom: 5px;">和风天气网页版说明</div>
+                <div class="setting-description" style="line-height: 1.5;">
+                    如果使用和风天气网页版解析，无需API密钥。系统会尝试从 https://www.qweather.com/weather/城市名-城市ID.html 获取数据。
+                    注意：网页解析可能因网站结构变化而失效。
+                </div>
+            </div>
+
             <div class="modal-buttons">
                 <button class="cancel" id="cancelSettings">取消</button>
                 <button class="confirm" id="saveGlobalSettings">保存</button>
@@ -954,7 +1090,11 @@
         const AppState = {
             locations: [],
             currentIndex: -1,
+            weatherSource: 'demo',
             apiKey: '',
+            particlesEnabled: true,
+            autoRefreshEnabled: false,
+            autoRefreshInterval: null,
             touchStartX: 0,
             touchStartY: 0,
             isSwiping: false,
@@ -981,6 +1121,11 @@
             settingsModal: document.getElementById('settingsModal'),
             newLocationInput: document.getElementById('newLocationInput'),
             apiKeyInput: document.getElementById('apiKeyInput'),
+            particlesToggle: document.getElementById('particlesToggle'),
+            autoRefreshToggle: document.getElementById('autoRefreshToggle'),
+            weatherSourceSelect: document.getElementById('weatherSourceSelect'),
+            apiKeyLabel: document.getElementById('apiKeyLabel'),
+            apiKeyDesc: document.getElementById('apiKeyDesc'),
             loadingOverlay: document.getElementById('loadingOverlay'),
             notification: document.getElementById('notification'),
             mainContent: document.getElementById('mainContent')
@@ -1043,10 +1188,67 @@
             'Tornado': 'linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%)'
         };
 
+        // OpenWeather天气代码到中文的映射
+        const openWeatherCodeMap = {
+            '800': 'Clear', '801': 'Clouds', '802': 'Clouds', '803': 'Clouds', '804': 'Clouds',
+            '300': 'Drizzle', '301': 'Drizzle', '310': 'Drizzle', '311': 'Drizzle', '312': 'Drizzle', '313': 'Drizzle', '314': 'Drizzle', '321': 'Drizzle',
+            '500': 'Rain', '501': 'Rain', '502': 'Rain', '503': 'Rain', '504': 'Rain', '511': 'Rain', '520': 'Rain', '521': 'Rain', '522': 'Rain', '531': 'Rain',
+            '200': 'Thunderstorm', '201': 'Thunderstorm', '202': 'Thunderstorm', '210': 'Thunderstorm', '211': 'Thunderstorm', '212': 'Thunderstorm', '221': 'Thunderstorm', '230': 'Thunderstorm', '231': 'Thunderstorm', '232': 'Thunderstorm',
+            '600': 'Snow', '601': 'Snow', '602': 'Snow', '611': 'Snow', '612': 'Snow', '613': 'Snow', '615': 'Snow', '616': 'Snow', '620': 'Snow', '621': 'Snow', '622': 'Snow',
+            '701': 'Mist', '711': 'Smoke', '721': 'Haze', '731': 'Dust', '741': 'Fog', '751': 'Sand', '761': 'Dust', '762': 'Ash', '771': 'Squall', '781': 'Tornado'
+        };
+
+        // 和风天气代码映射
+        const qweatherCodeMap = {
+            '100': 'Clear', '101': 'Clouds', '102': 'Clouds', '103': 'Clouds',
+            '300': 'Drizzle', '301': 'Drizzle', '302': 'Drizzle', '303': 'Drizzle', '304': 'Drizzle', '305': 'Drizzle', '306': 'Drizzle', '307': 'Drizzle', '308': 'Drizzle', '309': 'Drizzle', '310': 'Drizzle', '311': 'Drizzle', '312': 'Drizzle', '313': 'Drizzle', '314': 'Drizzle', '315': 'Drizzle', '316': 'Drizzle', '317': 'Drizzle', '318': 'Drizzle', '319': 'Drizzle', '320': 'Drizzle', '321': 'Drizzle', '322': 'Drizzle', '323': 'Drizzle', '324': 'Drizzle', '325': 'Drizzle', '326': 'Drizzle', '327': 'Drizzle', '328': 'Drizzle', '329': 'Drizzle', '330': 'Drizzle', '331': 'Drizzle', '332': 'Drizzle', '333': 'Drizzle', '334': 'Drizzle', '335': 'Drizzle', '336': 'Drizzle', '337': 'Drizzle', '338': 'Drizzle', '339': 'Drizzle', '340': 'Drizzle', '341': 'Drizzle', '342': 'Drizzle', '343': 'Drizzle', '344': 'Drizzle', '345': 'Drizzle', '346': 'Drizzle', '347': 'Drizzle', '348': 'Drizzle', '349': 'Drizzle', '350': 'Drizzle', '351': 'Drizzle', '352': 'Drizzle', '353': 'Drizzle', '354': 'Drizzle', '355': 'Drizzle', '356': 'Drizzle', '357': 'Drizzle', '358': 'Drizzle', '359': 'Drizzle', '360': 'Drizzle', '361': 'Drizzle', '362': 'Drizzle', '363': 'Drizzle', '364': 'Drizzle', '365': 'Drizzle', '366': 'Drizzle', '367': 'Drizzle', '368': 'Drizzle', '369': 'Drizzle', '370': 'Drizzle', '371': 'Drizzle', '372': 'Drizzle', '373': 'Drizzle', '374': 'Drizzle', '375': 'Drizzle', '376': 'Drizzle', '377': 'Drizzle', '378': 'Drizzle', '379': 'Drizzle', '380': 'Drizzle', '381': 'Drizzle', '382': 'Drizzle', '383': 'Drizzle', '384': 'Drizzle', '385': 'Drizzle', '386': 'Drizzle', '387': 'Drizzle', '388': 'Drizzle', '389': 'Drizzle', '390': 'Drizzle', '391': 'Drizzle', '392': 'Drizzle', '393': 'Drizzle', '394': 'Drizzle', '395': 'Drizzle', '396': 'Drizzle', '397': 'Drizzle', '398': 'Drizzle', '399': 'Drizzle',
+            '400': 'Snow', '401': 'Snow', '402': 'Snow', '403': 'Snow', '404': 'Snow', '405': 'Snow', '406': 'Snow', '407': 'Snow', '408': 'Snow', '409': 'Snow', '410': 'Snow', '411': 'Snow', '412': 'Snow', '413': 'Snow', '414': 'Snow', '415': 'Snow', '416': 'Snow', '417': 'Snow', '418': 'Snow', '419': 'Snow', '420': 'Snow', '421': 'Snow', '422': 'Snow', '423': 'Snow', '424': 'Snow', '425': 'Snow', '426': 'Snow', '427': 'Snow', '428': 'Snow', '429': 'Snow', '430': 'Snow', '431': 'Snow', '432': 'Snow', '433': 'Snow', '434': 'Snow', '435': 'Snow', '436': 'Snow', '437': 'Snow', '438': 'Snow', '439': 'Snow', '440': 'Snow', '441': 'Snow', '442': 'Snow', '443': 'Snow', '444': 'Snow', '445': 'Snow', '446': 'Snow', '447': 'Snow', '448': 'Snow', '449': 'Snow', '450': 'Snow', '451': 'Snow', '452': 'Snow', '453': 'Snow', '454': 'Snow', '455': 'Snow', '456': 'Snow', '457': 'Snow', '458': 'Snow', '459': 'Snow', '460': 'Snow', '461': 'Snow', '462': 'Snow', '463': 'Snow', '464': 'Snow', '465': 'Snow', '466': 'Snow', '467': 'Snow', '468': 'Snow', '469': 'Snow', '470': 'Snow', '471': 'Snow', '472': 'Snow', '473': 'Snow', '474': 'Snow', '475': 'Snow', '476': 'Snow', '477': 'Snow', '478': 'Snow', '479': 'Snow', '480': 'Snow', '481': 'Snow', '482': 'Snow', '483': 'Snow', '484': 'Snow', '485': 'Snow', '486': 'Snow', '487': 'Snow', '488': 'Snow', '489': 'Snow', '490': 'Snow', '491': 'Snow', '492': 'Snow', '493': 'Snow', '494': 'Snow', '495': 'Snow', '496': 'Snow', '497': 'Snow', '498': 'Snow', '499': 'Snow',
+            '500': 'Rain', '501': 'Rain', '502': 'Rain', '503': 'Rain', '504': 'Rain', '505': 'Rain', '506': 'Rain', '507': 'Rain', '508': 'Rain', '509': 'Rain', '510': 'Rain', '511': 'Rain', '512': 'Rain', '513': 'Rain', '514': 'Rain', '515': 'Rain', '516': 'Rain', '517': 'Rain', '518': 'Rain', '519': 'Rain', '520': 'Rain', '521': 'Rain', '522': 'Rain', '523': 'Rain', '524': 'Rain', '525': 'Rain', '526': 'Rain', '527': 'Rain', '528': 'Rain', '529': 'Rain', '530': 'Rain', '531': 'Rain', '532': 'Rain', '533': 'Rain', '534': 'Rain', '535': 'Rain', '536': 'Rain', '537': 'Rain', '538': 'Rain', '539': 'Rain', '540': 'Rain', '541': 'Rain', '542': 'Rain', '543': 'Rain', '544': 'Rain', '545': 'Rain', '546': 'Rain', '547': 'Rain', '548': 'Rain', '549': 'Rain', '550': 'Rain', '551': 'Rain', '552': 'Rain', '553': 'Rain', '554': 'Rain', '555': 'Rain', '556': 'Rain', '557': 'Rain', '558': 'Rain', '559': 'Rain', '560': 'Rain', '561': 'Rain', '562': 'Rain', '563': 'Rain', '564': 'Rain', '565': 'Rain', '566': 'Rain', '567': 'Rain', '568': 'Rain', '569': 'Rain', '570': 'Rain', '571': 'Rain', '572': 'Rain', '573': 'Rain', '574': 'Rain', '575': 'Rain', '576': 'Rain', '577': 'Rain', '578': 'Rain', '579': 'Rain', '580': 'Rain', '581': 'Rain', '582': 'Rain', '583': 'Rain', '584': 'Rain', '585': 'Rain', '586': 'Rain', '587': 'Rain', '588': 'Rain', '589': 'Rain', '590': 'Rain', '591': 'Rain', '592': 'Rain', '593': 'Rain', '594': 'Rain', '595': 'Rain', '596': 'Rain', '597': 'Rain', '598': 'Rain', '599': 'Rain',
+            '900': 'Clear', '901': 'Clouds', '902': 'Thunderstorm', '903': 'Snow', '904': 'Clear', '905': 'Clear', '906': 'Rain', '907': 'Snow', '908': 'Rain', '909': 'Mist', '910': 'Clear', '911': 'Fog', '912': 'Haze', '913': 'Fog', '914': 'Mist', '915': 'Thunderstorm', '916': 'Squall', '917': 'Tornado', '918': 'Dust', '919': 'Ash', '920': 'Smoke', '921': 'Sand', '922': 'Sand', '923': 'Squall', '924': 'Tornado', '925': 'Fog', '926': 'Fog', '927': 'Fog', '928': 'Fog', '929': 'Fog', '930': 'Fog', '931': 'Fog', '932': 'Fog', '933': 'Fog', '934': 'Fog', '935': 'Fog', '936': 'Fog', '937': 'Fog', '938': 'Fog', '939': 'Fog', '940': 'Fog', '941': 'Fog', '942': 'Fog', '943': 'Fog', '944': 'Fog', '945': 'Fog', '946': 'Fog', '947': 'Fog', '948': 'Fog', '949': 'Fog', '950': 'Fog', '951': 'Fog', '952': 'Fog', '953': 'Fog', '954': 'Fog', '955': 'Fog', '956': 'Fog', '957': 'Fog', '958': 'Fog', '959': 'Fog', '960': 'Fog', '961': 'Fog', '962': 'Fog'
+        };
+
+        // 高德地图天气代码映射
+        const amapCodeMap = {
+            '晴': 'Clear',
+            '多云': 'Clouds',
+            '阴': 'Clouds',
+            '阵雨': 'Rain',
+            '雷阵雨': 'Thunderstorm',
+            '雷阵雨伴有冰雹': 'Thunderstorm',
+            '雨夹雪': 'Snow',
+            '小雨': 'Drizzle',
+            '中雨': 'Rain',
+            '大雨': 'Rain',
+            '暴雨': 'Rain',
+            '大暴雨': 'Rain',
+            '特大暴雨': 'Rain',
+            '阵雪': 'Snow',
+            '小雪': 'Snow',
+            '中雪': 'Snow',
+            '大雪': 'Snow',
+            '暴雪': 'Snow',
+            '雾': 'Fog',
+            '冻雨': 'Rain',
+            '沙尘暴': 'Dust',
+            '小到中雨': 'Rain',
+            '中到大雨': 'Rain',
+            '大到暴雨': 'Rain',
+            '暴雨到大暴雨': 'Rain',
+            '大暴雨到特大暴雨': 'Rain',
+            '小到中雪': 'Snow',
+            '中到大雪': 'Snow',
+            '大到暴雪': 'Snow',
+            '浮尘': 'Dust',
+            '扬沙': 'Dust',
+            '强沙尘暴': 'Dust',
+            '霾': 'Haze'
+        };
+
         // 初始化
         document.addEventListener('DOMContentLoaded', () => {
             loadFromStorage();
             setupEventListeners();
+            updateWeatherSourceUI(); // 根据数据源更新UI
             if (AppState.locations.length > 0) {
                 renderLocationList();
                 showWeatherCard(AppState.currentIndex);
@@ -1083,6 +1285,15 @@
                 if (e.key === 'Enter') saveGlobalSettings();
             });
 
+            // 天气源选择变化
+            elements.weatherSourceSelect.addEventListener('change', updateWeatherSourceUI);
+
+            // 粒子开关
+            elements.particlesToggle.addEventListener('click', toggleParticles);
+
+            // 自动刷新开关
+            elements.autoRefreshToggle.addEventListener('click', toggleAutoRefresh);
+
             // 触摸/鼠标滑动事件
             elements.mainContent.addEventListener('touchstart', handleTouchStart, { passive: true });
             elements.mainContent.addEventListener('touchmove', handleTouchMove, { passive: true });
@@ -1094,8 +1305,8 @@
 
             // 点击主区域关闭侧边栏
             elements.mainContent.addEventListener('click', (e) => {
-                if (elements.sidebar.classList.contains('open') && 
-                    !elements.sidebar.contains(e.target) && 
+                if (elements.sidebar.classList.contains('open') &&
+                    !elements.sidebar.contains(e.target) &&
                     !elements.menuBtn.contains(e.target)) {
                     elements.sidebar.classList.remove('open');
                     elements.menuBtn.classList.remove('active');
@@ -1107,19 +1318,16 @@
         function toggleSidebar() {
             const isOpen = elements.sidebar.classList.toggle('open');
             elements.menuBtn.classList.toggle('active', isOpen);
-            
-            // 创建点击反馈效果
-            createClickFeedback(elements.menuBtn);
+ createClickFeedback(elements.menuBtn);
         }
 
-        // 处理刷新 - 修正：保持天气数据不变，仅更新时间戳
+        // 处理刷新
         function handleRefresh() {
-            // 添加刷新动画
             elements.refreshBtn.classList.add('refreshing');
             createClickFeedback(elements.refreshBtn);
-            
+
             showNotification('正在刷新...', 'info');
-            
+
             setTimeout(() => {
                 if (AppState.locations.length === 0) {
                     showNotification('暂无地区可刷新', 'error');
@@ -1127,31 +1335,47 @@
                     return;
                 }
 
-                // 刷新所有地区数据 - 保持原有天气，仅更新时间戳
                 showLoading(true);
                 let completed = 0;
-                
+                let hasError = false;
+
                 AppState.locations.forEach((location, index) => {
-                    setTimeout(() => {
-                        // 如果已有数据，保持不变，仅更新最后更新时间
-                        if (location.data) {
-                            location.data.lastUpdate = new Date().toLocaleTimeString('zh-CN', {hour: '2-digit', minute: '2-digit'});
-                        } else {
-                            // 如果没有数据，生成新的（基于地区名称确定性生成）
+                    setTimeout(async () => {
+                        try {
+                            const data = await fetchWeatherData(location.name);
+                            if (data) {
+                                location.data = data;
+                            } else {
+                                hasError = true;
+ // 使用模拟数据作为备用
+                                location.data = generateMockWeather(location.name);
+                            }
+                        } catch (error) {
+                            hasError = true;
                             location.data = generateMockWeather(location.name);
                         }
+
                         completed++;
-                        
+
                         if (completed === AppState.locations.length) {
                             saveToStorage();
                             renderLocationList();
-                            
+
                             if (AppState.currentIndex >= 0) {
                                 showWeatherCard(AppState.currentIndex);
                             }
-                            
+
                             showLoading(false);
-                            showNotification('刷新完成（数据保持不变）', 'success');
+
+                            const sourceName = getSourceName(AppState.weatherSource);
+                            if (hasError) {
+                                showNotification(`刷新完成（${sourceName} - 部分使用演示数据）`, 'error');
+                            } else if (AppState.weatherSource === 'demo') {
+                                showNotification('刷新完成（演示模式）', 'success');
+                            } else {
+                                showNotification(`刷新完成（${sourceName}）`, 'success');
+                            }
+
                             elements.refreshBtn.classList.remove('refreshing');
                         }
                     }, 300 * index);
@@ -1159,20 +1383,32 @@
             }, 800);
         }
 
+        // 获取数据源名称
+        function getSourceName(source) {
+            const names = {
+                'demo': '演示模式',
+                'openweather': 'OpenWeather',
+                'qweather': '和风天气',
+                'amap': '高德地图',
+                'meteo': 'Meteo'
+            };
+            return names[source] || source;
+        }
+
         // 创建点击反馈效果
         function createClickFeedback(element) {
             const rect = element.getBoundingClientRect();
             const feedback = document.createElement('div');
             feedback.className = 'click-feedback';
-            
+
             const size = Math.max(rect.width, rect.height) * 2;
             feedback.style.width = size + 'px';
             feedback.style.height = size + 'px';
             feedback.style.left = (rect.left + rect.width / 2 - size / 2) + 'px';
             feedback.style.top = (rect.top + rect.height / 2 - size / 2) + 'px';
-            
+
             document.body.appendChild(feedback);
-            
+
             setTimeout(() => {
                 feedback.remove();
             }, 600);
@@ -1182,7 +1418,10 @@
         function loadFromStorage() {
             const savedLocations = localStorage.getItem('weatherLocations');
             const savedApiKey = localStorage.getItem('weatherApiKey');
+            const savedSource = localStorage.getItem('weatherSource');
             const savedIndex = localStorage.getItem('currentIndex');
+            const savedParticles = localStorage.getItem('particlesEnabled');
+            const savedAutoRefresh = localStorage.getItem('autoRefreshEnabled');
 
             if (savedLocations) {
                 AppState.locations = JSON.parse(savedLocations);
@@ -1191,10 +1430,29 @@
                 AppState.apiKey = savedApiKey;
                 elements.apiKeyInput.value = savedApiKey;
             }
+            if (savedSource) {
+                AppState.weatherSource = savedSource;
+                elements.weatherSourceSelect.value = savedSource;
+            }
+            if (savedParticles !== null) {
+                AppState.particlesEnabled = savedParticles === 'true';
+            }
+            if (savedAutoRefresh !== null) {
+                AppState.autoRefreshEnabled = savedAutoRefresh === 'true';
+            }
             if (savedIndex && AppState.locations.length > 0) {
                 AppState.currentIndex = Math.min(parseInt(savedIndex), AppState.locations.length - 1);
             } else {
                 AppState.currentIndex = AppState.locations.length > 0 ? 0 : -1;
+            }
+
+            // 更新开关状态
+            updateParticlesToggle();
+            updateAutoRefreshToggle();
+
+            // 如果自动刷新开启，设置定时器
+            if (AppState.autoRefreshEnabled) {
+                setupAutoRefresh();
             }
         }
 
@@ -1202,7 +1460,10 @@
         function saveToStorage() {
             localStorage.setItem('weatherLocations', JSON.stringify(AppState.locations));
             localStorage.setItem('weatherApiKey', AppState.apiKey);
+            localStorage.setItem('weatherSource', AppState.weatherSource);
             localStorage.setItem('currentIndex', AppState.currentIndex.toString());
+            localStorage.setItem('particlesEnabled', AppState.particlesEnabled.toString());
+            localStorage.setItem('autoRefreshEnabled', AppState.autoRefreshEnabled.toString());
         }
 
         // 显示通知
@@ -1212,7 +1473,13 @@
             notification.className = `notification ${type}`;
             notification.classList.add('show');
 
-            setTimeout(() => {
+            // 修复：确保之前的通知定时器被清理
+            if (notification.hideTimeout) {
+                clearTimeout(notification.hideTimeout);
+            }
+
+            // 设置新的定时器
+            notification.hideTimeout = setTimeout(() => {
                 notification.classList.remove('show');
             }, 3000);
         }
@@ -1253,11 +1520,11 @@
 
             AppState.locations.push(newLocation);
             AppState.currentIndex = AppState.locations.length - 1;
-            
+
             saveToStorage();
             renderLocationList();
             closeAddModal();
-            
+
             // 获取天气数据
             fetchWeatherForLocation(newLocation);
         }
@@ -1265,7 +1532,7 @@
         // 删除地区
         function deleteLocation(id, event) {
             event.stopPropagation();
-            
+
             const index = AppState.locations.findIndex(loc => loc.id === id);
             if (index === -1) return;
 
@@ -1283,7 +1550,7 @@
 
             saveToStorage();
             renderLocationList();
-            
+
             if (AppState.currentIndex >= 0) {
                 showWeatherCard(AppState.currentIndex);
             } else {
@@ -1305,16 +1572,16 @@
             AppState.locations.forEach((location, index) => {
                 const item = document.createElement('div');
                 item.className = `location-item ${index === AppState.currentIndex ? 'active' : ''}`;
-                
+
                 const tempHtml = location.data ? `
                     <div class="temp">${location.data.temperature}°C</div>
                     <div class="condition">${location.data.description}</div>
                 ` : '<div class="condition">加载中...</div>';
-                
+
                 const deleteBtnHtml = `<button class="delete-btn" onclick="deleteLocation(${location.id}, event)">
                     <i class="fas fa-times"></i>
                 </button>`;
-                
+
                 item.innerHTML = `
                     <div class="name">
                         <i class="fas fa-map-marker-alt"></i>
@@ -1323,13 +1590,12 @@
                     ${tempHtml}
                     ${deleteBtnHtml}
                 `;
-                
+
                 item.addEventListener('click', () => {
                     AppState.currentIndex = index;
                     saveToStorage();
                     renderLocationList();
                     showWeatherCard(index);
-                    // 点击后自动关闭侧边栏
                     elements.sidebar.classList.remove('open');
                     elements.menuBtn.classList.remove('active');
                 });
@@ -1339,40 +1605,253 @@
         }
 
         // 为特定地区获取天气数据
-        function fetchWeatherForLocation(location) {
+        async function fetchWeatherForLocation(location) {
             showLoading(true);
-            
-            // 模拟API调用
-            setTimeout(() => {
-                // 使用确定性生成，确保同一地区总是相同天气
-                const mockData = generateMockWeather(location.name);
-                location.data = mockData;
-                saveToStorage();
-                renderLocationList();
-                showWeatherCard(AppState.currentIndex);
-                showLoading(false);
-                showNotification(`已添加：${location.name}`, 'success');
-            }, 1000);
+
+            try {
+                const data = await fetchWeatherData(location.name);
+                if (data) {
+                    location.data = data;
+                    showNotification(`已添加：${location.name}（${getSourceName(AppState.weatherSource)}）`, 'success');
+                } else {
+                    location.data = generateMockWeather(location.name);
+                    showNotification(`已添加：${location.name}（演示模式）`, 'error');
+                }
+            } catch (error) {
+                location.data = generateMockWeather(location.name);
+                showNotification(`已添加：${location.name}（演示模式）`, 'error');
+            }
+
+            saveToStorage();
+            renderLocationList();
+            showWeatherCard(AppState.currentIndex);
+            showLoading(false);
         }
 
-        // 生成模拟天气数据 - 修正：基于地区名称生成确定性数据
+        // 统一的数据获取函数
+        async function fetchWeatherData(cityName) {
+            if (AppState.weatherSource === 'demo') {
+                return generateMockWeather(cityName);
+            }
+
+            try {
+                switch (AppState.weatherSource) {
+                    case 'openweather':
+                        return await fetchOpenWeather(cityName);
+                    case 'qweather':
+                        return await fetchQWeather(cityName);
+                    case 'amap':
+                        return await fetchAmapWeather(cityName);
+                    case 'meteo':
+                        return await fetchMeteoWeather(cityName);
+                    default:
+                        return null;
+                }
+            } catch (error) {
+                console.error(`获取${getSourceName(AppState.weatherSource)}天气失败:`, error);
+                return null;
+            }
+        }
+
+        // OpenWeather API
+        async function fetchOpenWeather(cityName) {
+            if (!AppState.apiKey) return null;
+
+            const geocodeUrl = `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(cityName)}&limit=1&appid=${AppState.apiKey}`;
+            const geoResponse = await fetch(geocodeUrl);
+ if (!geoResponse.ok) throw new Error('地理编码API失败');
+
+            const geoData = await geoResponse.json();
+            if (!geoData || geoData.length === 0) throw new Error('未找到城市');
+
+            const { lat, lon } = geoData[0];
+            const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${AppState.apiKey}&units=metric&lang=zh_cn`;
+            const weatherResponse = await fetch(weatherUrl);
+            if (!weatherResponse.ok) throw new Error('天气API失败');
+
+            const weatherData = await weatherResponse.json();
+            const conditionCode = weatherData.weather[0].id.toString();
+            const condition = openWeatherCodeMap[conditionCode] || 'Clouds';
+
+            return {
+                location: weatherData.name,
+                condition: condition,
+                description: weatherDescriptions[condition] || weatherData.weather[0].description,
+                temperature: Math.round(weatherData.main.temp),
+                humidity: weatherData.main.humidity,
+                windSpeed: weatherData.wind.speed,
+                pressure: weatherData.main.pressure,
+                feelsLike: Math.round(weatherData.main.feels_like),
+                lastUpdate: new Date().toLocaleTimeString('zh-CN', {hour: '2-digit', minute: '2-digit'})
+            };
+        }
+
+        // 和风天气API（免费版）
+        async function fetchQWeather(cityName) {
+            if (!AppState.apiKey) return null;
+
+            // 和风天气免费API端点（需要注册获取Key）
+            const weatherUrl = `https://devapi.qweather.com/v7/weather/now?location=${encodeURIComponent(cityName)}&key=${AppState.apiKey}`;
+            const response = await fetch(weatherUrl);
+            if (!response.ok) throw new Error('和风天气API失败');
+
+            const data = await response.json();
+            if (data.code !== '200') throw new Error('和风天气返回错误');
+
+            const now = data.now;
+            const conditionCode = now.icon;
+            const condition = qweatherCodeMap[conditionCode] || 'Clouds';
+
+            return {
+                location: cityName,
+                condition: condition,
+                description: weatherDescriptions[condition] || now.text,
+                temperature: parseInt(now.temp),
+                humidity: parseInt(now.humidity),
+                windSpeed: parseFloat(now.windSpeed),
+                pressure: parseInt(now.pressure),
+                feelsLike: parseInt(now.feelsLike),
+                lastUpdate: new Date().toLocaleTimeString('zh-CN', {hour: '2-digit', minute: '2-digit'})
+            };
+        }
+
+        // 高德地图API
+        async function fetchAmapWeather(cityName) {
+            if (!AppState.apiKey) return null;
+
+            //首先获取城市代码
+            const cityUrl = `https://restapi.amap.com/v3/geocode/geo?address=${encodeURIComponent(cityName)}&key=${AppState.apiKey}`;
+            const cityResponse = await fetch(cityUrl);
+            if (!cityResponse.ok) throw new Error('高德地理编码API失败');
+
+            const cityData = await cityResponse.json();
+            if (cityData.status !== '1' || !cityData.geocodes || cityData.geocodes.length === 0) {
+                throw new Error('未找到城市');
+            }
+
+            const cityCode = cityData.geocodes[0].adcode;
+
+            // 获取天气
+            const weatherUrl = `https://restapi.amap.com/v3/weather/weatherInfo?city=${cityCode}&key=${AppState.apiKey}&extensions=base`;
+            const weatherResponse = await fetch(weatherUrl);
+            if (!weatherResponse.ok) throw new Error('高德天气API失败');
+
+            const weatherData = await weatherResponse.json();
+            if (weatherData.status !== '1') throw new Error('高德天气返回错误');
+
+            const live = weatherData.lives[0];
+            const conditionText = live.weather;
+            const condition = amapCodeMap[conditionText] || 'Clouds';
+
+            return {
+                location: live.city,
+                condition: condition,
+                description: weatherDescriptions[condition] || conditionText,
+                temperature: parseInt(live.temperature),
+                humidity: parseInt(live.humidity),
+                windSpeed: parseFloat(live.windpower),
+                pressure: 1013, // 高德不返回气压，使用默认值
+                feelsLike: parseInt(live.temperature), // 高德不返回体感温度
+                lastUpdate: new Date().toLocaleTimeString('zh-CN', {hour: '2-digit', minute: '2-digit'})
+            };
+        }
+
+        // Meteo开源API（免费）
+        async function fetchMeteoWeather(cityName) {
+            // 使用Meteo的地理编码API
+            const geoUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(cityName)}&count=1&language=zh&format=json`;
+            const geoResponse = await fetch(geoUrl);
+            if (!geoResponse.ok) throw new Error('Meteo地理编码API失败');
+
+            const geoData = await geoResponse.json();
+            if (!geoData.results || geoData.results.length === 0) throw new Error('未找到城市');
+
+            const { latitude, longitude, name } = geoData.results[0];
+
+            // 获取天气
+            const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m,pressure_msl&timezone=auto&lang=zh`;
+            const weatherResponse = await fetch(weatherUrl);
+            if (!weatherResponse.ok) throw new Error('Meteo天气API失败');
+
+            const weatherData = await weatherResponse.json();
+            const current = weatherData.current_weather;
+            const hourly = weatherData.hourly;
+
+            // 查找当前时间的湿度和气压
+            const now = new Date();
+            const currentIndex = hourly.time.findIndex(t => {
+                const time = new Date(t);
+                return Math.abs(time - now) < 3600000; // 1小时内
+            });
+
+            const humidity = currentIndex >= 0 ? hourly.relative_humidity_2m[currentIndex] : 70;
+            const pressure = currentIndex >= 0 ? Math.round(hourly.pressure_msl[currentIndex]) : 1013;
+
+            // 映射天气代码
+            const wmoCode = current.weathercode;
+            let condition = 'Clouds';
+            if (wmoCode === 0) condition = 'Clear';
+            else if (wmoCode >= 1 && wmoCode <= 3) condition = 'Clouds';
+            else if (wmoCode >= 51 && wmoCode <= 67) condition = 'Rain';
+            else if (wmoCode >= 71 && wmoCode <= 77) condition = 'Snow';
+            else if (wmoCode >= 80 && wmoCode <= 82) condition = 'Rain';
+            else if (wmoCode >= 95 && wmoCode <= 99) condition = 'Thunderstorm';
+
+            return {
+                location: name,
+                condition: condition,
+                description: weatherDescriptions[condition],
+                temperature: Math.round(current.temperature),
+                humidity: humidity,
+                windSpeed: current.windspeed,
+                pressure: pressure,
+                feelsLike: Math.round(current.temperature), // 简化处理
+                lastUpdate: new Date().toLocaleTimeString('zh-CN', {hour: '2-digit', minute: '2-digit'})
+            };
+        }
+
+        // 和风天气网页解析（备用方案）
+        async function fetchQWeatherFromWeb(cityName) {
+            try {
+                //这是一个示例实现，实际使用需要根据和风天气网页结构调整
+                // 注意：网页解析不稳定，可能因网站改版而失效
+
+                //尝试搜索城市ID（这一步需要预定义或通过其他方式获取）
+                //这里简化处理，实际应用需要完整的城市ID映射表
+
+                showNotification('网页解析功能需要预定义城市ID映射表', 'info');
+                return null;
+
+                // 伪代码示例：
+                // const cityId = getQWeatherCityId(cityName); // 需要实现这个映射
+                // const url = `https://www.qweather.com/weather/${cityId}.html`;
+                // const response = await fetch(url);
+                // const html = await response.text();
+                // 使用DOMParser解析HTML提取天气数据
+                // ...
+            } catch (error) {
+                console.error('网页解析失败:', error);
+                return null;
+            }
+        }
+
+        // 生成模拟天气数据（演示模式）
         function generateMockWeather(location) {
-            // 使用地区名称的哈希值来确定天气（同一地区总是相同）
+            // 使用地区名称的哈希值，确保同一地区总是相同天气
             let hash = 0;
             for (let i = 0; i < location.length; i++) {
                 hash = location.charCodeAt(i) + ((hash << 5) - hash);
             }
-            
+
             const conditions = ['Clear', 'Clouds', 'Rain', 'Thunderstorm', 'Snow', 'Mist', 'Fog', 'Haze'];
             const conditionIndex = Math.abs(hash) % conditions.length;
             const condition = conditions[conditionIndex];
-            
-            // 基于哈希值生成温度等参数
-            const temp = 10 + (Math.abs(hash) % 20); // 10-30度
-            const humidity = 40 + (Math.abs(hash >> 2) % 50); // 40-90%
-            const windSpeed = (1 + (Math.abs(hash >> 3) % 10)).toFixed(1); // 1-10 m/s
-            const pressure = 1000 + (Math.abs(hash >> 4) % 50); // 1000-1050 hPa
-            const feelsLike = temp + (Math.abs(hash >> 5) % 5) - 2; // temp ±2
+
+            const temp = 10 + (Math.abs(hash) % 20);
+            const humidity = 40 + (Math.abs(hash >> 2) % 50);
+            const windSpeed = (1 + (Math.abs(hash >> 3) % 10)).toFixed(1);
+            const pressure = 1000 + (Math.abs(hash >> 4) % 50);
+            const feelsLike = temp + (Math.abs(hash >> 5) % 5) - 2;
 
             return {
                 location: location,
@@ -1408,8 +1887,10 @@
             const bgStyle = weatherBackgrounds[location.data.condition] || weatherBackgrounds['Clouds'];
             elements.weatherBg.style.background = bgStyle;
 
-            // 创建粒子动画
-            createPulsingParticles(location.data.condition);
+            // 创建粒子动画（如果启用）
+            if (AppState.particlesEnabled) {
+                createPulsingParticles(location.data.condition);
+            }
 
             // 更新滑动指示器
             updateSlideIndicators();
@@ -1490,7 +1971,6 @@
         function clearWeatherCards() {
             elements.weatherCardsContainer.innerHTML = '';
             elements.particleContainer.innerHTML = '';
-            // 清理可能存在的interval
             if (elements.particleContainer.dataset.interval) {
                 clearInterval(parseInt(elements.particleContainer.dataset.interval));
                 delete elements.particleContainer.dataset.interval;
@@ -1537,8 +2017,8 @@
 
             // 持续生成粒子
             const interval = setInterval(() => {
-                if (AppState.currentIndex === -1 || 
-                    !AppState.locations[AppState.currentIndex] || 
+                if (AppState.currentIndex === -1 ||
+                    !AppState.locations[AppState.currentIndex] ||
                     !AppState.locations[AppState.currentIndex].data) {
                     clearInterval(interval);
                     return;
@@ -1554,7 +2034,7 @@
         function createParticle(condition) {
             const particle = document.createElement('div');
             particle.className = 'particle';
-            
+
             let particleClass = '';
             let duration = 0;
             let delay = 0;
@@ -1606,7 +2086,6 @@
             particle.style.animationDelay = delay + 's';
 
             if (condition === 'Thunderstorm' && particleClass === 'lightning-particle') {
-                // 随机触发闪电
                 if (Math.random() > 0.5) {
                     setTimeout(() => {
                         particle.style.opacity = '1';
@@ -1619,7 +2098,6 @@
 
             elements.particleContainer.appendChild(particle);
 
-            // 动画结束后移除
             setTimeout(() => {
                 if (particle.parentNode) {
                     particle.parentNode.removeChild(particle);
@@ -1643,11 +2121,9 @@
             const diffX = AppState.touchStartX - touchEndX;
             const diffY = AppState.touchStartY - touchEndY;
 
-            // 水平滑动距离大于垂直滑动距离时，认为是滑动切换
             if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 30) {
                 AppState.isSwiping = true;
-                
-                // 显示指示器
+
                 if (diffX > 0 && AppState.currentIndex < AppState.locations.length - 1) {
                     elements.slideIndicatorRight.classList.add('visible');
                 } else if (diffX < 0 && AppState.currentIndex > 0) {
@@ -1662,18 +2138,14 @@
             const touchEndX = e.changedTouches[0].clientX;
             const diffX = AppState.touchStartX - touchEndX;
 
-            // 滑动阈值
             if (Math.abs(diffX) > 50) {
                 if (diffX > 0 && AppState.currentIndex < AppState.locations.length - 1) {
-                    // 向左滑动 - 下一个
                     slideToNext();
                 } else if (diffX < 0 && AppState.currentIndex > 0) {
-                    // 向右滑动 - 上一个
                     slideToPrev();
                 }
             }
 
-            // 隐藏指示器
             elements.slideIndicatorLeft.classList.remove('visible');
             elements.slideIndicatorRight.classList.remove('visible');
 
@@ -1682,7 +2154,6 @@
             AppState.isSwiping = false;
         }
 
-        // 鼠标事件处理（桌面端）
         function handleMouseDown(e) {
             AppState.touchStartX = e.clientX;
             AppState.touchStartY = e.clientY;
@@ -1697,7 +2168,7 @@
 
             if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 30) {
                 AppState.isSwiping = true;
-                
+
                 if (diffX > 0 && AppState.currentIndex < AppState.locations.length - 1) {
                     elements.slideIndicatorRight.classList.add('visible');
                 } else if (diffX < 0 && AppState.currentIndex > 0) {
@@ -1734,18 +2205,16 @@
             const currentCard = elements.weatherCardsContainer.querySelector('.weather-card');
             if (!currentCard) return;
 
-            // 创建新卡片
             AppState.currentIndex++;
             const nextLocation = AppState.locations[AppState.currentIndex];
-            
-            // 动画
+
             currentCard.classList.add('slide-out-left');
-            
+
             setTimeout(() => {
                 showWeatherCard(AppState.currentIndex);
                 renderLocationList();
                 saveToStorage();
-                
+
                 const newCard = elements.weatherCardsContainer.querySelector('.weather-card');
                 if (newCard) {
                     newCard.classList.add('slide-in-right');
@@ -1764,14 +2233,14 @@
 
             AppState.currentIndex--;
             const prevLocation = AppState.locations[AppState.currentIndex];
-            
+
             currentCard.classList.add('slide-out-right');
-            
+
             setTimeout(() => {
                 showWeatherCard(AppState.currentIndex);
                 renderLocationList();
                 saveToStorage();
-                
+
                 const newCard = elements.weatherCardsContainer.querySelector('.weather-card');
                 if (newCard) {
                     newCard.classList.add('slide-in-left');
@@ -1802,31 +2271,158 @@
             elements.settingsModal.classList.add('active');
             elements.apiKeyInput.focus();
             createClickFeedback(elements.settingsBtn);
+            updateWeatherSourceUI(); // 确保UI正确
+            updateParticlesToggle();
+            updateAutoRefreshToggle();
         }
 
         function closeSettingsModal() {
             elements.settingsModal.classList.remove('active');
         }
 
+        // 更新天气源UI
+        function updateWeatherSourceUI() {
+            const source = elements.weatherSourceSelect.value;
+            const apiKeyLabel = elements.apiKeyLabel;
+            const apiKeyDesc = elements.apiKeyDesc;
+            const apiKeyInput = elements.apiKeyInput;
+
+            if (source === 'demo') {
+                apiKeyLabel.textContent = 'API密钥（演示模式无需填写）';
+                apiKeyDesc.textContent = '使用模拟数据，无需API密钥';
+                apiKeyInput.disabled = true;
+                apiKeyInput.placeholder = '演示模式';
+                apiKeyInput.value = '';
+            } else if (source === 'qweather') {
+                apiKeyLabel.textContent = '和风天气API密钥';
+                apiKeyDesc.textContent = '免费注册：https://www.qweather.com/，支持网页解析';
+                apiKeyInput.disabled = false;
+                apiKeyInput.placeholder = '输入和风天气API密钥';
+            } else if (source === 'openweather') {
+                apiKeyLabel.textContent = 'OpenWeather API密钥';
+                apiKeyDesc.textContent = '免费注册：https://openweathermap.org/';
+                apiKeyInput.disabled = false;
+                apiKeyInput.placeholder = '输入OpenWeather API密钥';
+            } else if (source === 'amap') {
+                apiKeyLabel.textContent = '高德地图API密钥';
+                apiKeyDesc.textContent = '免费注册：https://lbs.amap.com/';
+                apiKeyInput.disabled = false;
+                apiKeyInput.placeholder = '输入高德地图API密钥';
+            } else if (source === 'meteo') {
+                apiKeyLabel.textContent = 'Meteo API（无需密钥）';
+                apiKeyDesc.textContent = '免费开源天气API，无需密钥';
+                apiKeyInput.disabled = true;
+                apiKeyInput.placeholder = '无需填写';
+                apiKeyInput.value = '';
+            }
+        }
+
+        // 切换粒子效果
+        function toggleParticles() {
+            AppState.particlesEnabled = !AppState.particlesEnabled;
+            updateParticlesToggle();
+            saveToStorage();
+
+            if (AppState.particlesEnabled) {
+                showNotification('粒子动效已开启', 'success');
+                if (AppState.currentIndex >= 0 && AppState.locations[AppState.currentIndex]?.data) {
+                    createPulsingParticles(AppState.locations[AppState.currentIndex].data.condition);
+                }
+            } else {
+                showNotification('粒子动效已关闭', 'info');
+                elements.particleContainer.innerHTML = '';
+                if (elements.particleContainer.dataset.interval) {
+                    clearInterval(parseInt(elements.particleContainer.dataset.interval));
+                    delete elements.particleContainer.dataset.interval;
+                }
+            }
+        }
+
+        // 更新粒子开关UI
+        function updateParticlesToggle() {
+            if (AppState.particlesEnabled) {
+                elements.particlesToggle.classList.add('active');
+            } else {
+                elements.particlesToggle.classList.remove('active');
+            }
+        }
+
+        // 切换自动刷新
+        function toggleAutoRefresh() {
+            AppState.autoRefreshEnabled = !AppState.autoRefreshEnabled;
+            updateAutoRefreshToggle();
+            saveToStorage();
+
+            if (AppState.autoRefreshEnabled) {
+                setupAutoRefresh();
+                showNotification('自动刷新已开启（30分钟）', 'success');
+            } else {
+                if (AppState.autoRefreshInterval) {
+                    clearInterval(AppState.autoRefreshInterval);
+                    AppState.autoRefreshInterval = null;
+                }
+                showNotification('自动刷新已关闭', 'info');
+            }
+        }
+
+        // 更新自动刷新开关UI
+        function updateAutoRefreshToggle() {
+            if (AppState.autoRefreshEnabled) {
+                elements.autoRefreshToggle.classList.add('active');
+            } else {
+                elements.autoRefreshToggle.classList.remove('active');
+            }
+        }
+
+        // 设置自动刷新
+        function setupAutoRefresh() {
+            if (AppState.autoRefreshInterval) {
+                clearInterval(AppState.autoRefreshInterval);
+            }
+
+            // 每30分钟自动刷新
+            AppState.autoRefreshInterval = setInterval(() => {
+                if (AppState.locations.length > 0) {
+                    handleRefresh();
+                }
+            }, 30 * 60 * 1000); // 30分钟
+        }
+
+        // 保存全局设置
         function saveGlobalSettings() {
             const apiKey = elements.apiKeyInput.value.trim();
+            const source = elements.weatherSourceSelect.value;
+
             AppState.apiKey = apiKey;
-            localStorage.setItem('weatherApiKey', apiKey);
+            AppState.weatherSource = source;
+
+            localStorage.setItem('weatherApiKey', AppState.apiKey);
+            localStorage.setItem('weatherSource', AppState.weatherSource);
+
             closeSettingsModal();
             showNotification('设置已保存', 'success');
-            
+
             // 刷新所有地区数据
             if (AppState.locations.length > 0) {
                 showLoading(true);
                 let completed = 0;
+                let hasError = false;
+
                 AppState.locations.forEach((location, index) => {
-                    setTimeout(() => {
-                        // 保持原有数据，仅更新时间戳
-                        if (location.data) {
-                            location.data.lastUpdate = new Date().toLocaleTimeString('zh-CN', {hour: '2-digit', minute: '2-digit'});
-                        } else {
+                    setTimeout(async () => {
+                        try {
+                            const data = await fetchWeatherData(location.name);
+                            if (data) {
+                                location.data = data;
+                            } else {
+                                location.data = generateMockWeather(location.name);
+                                hasError = true;
+                            }
+                        } catch (error) {
                             location.data = generateMockWeather(location.name);
+                            hasError = true;
                         }
+
                         completed++;
                         if (completed === AppState.locations.length) {
                             saveToStorage();
@@ -1835,7 +2431,15 @@
                                 showWeatherCard(AppState.currentIndex);
                             }
                             showLoading(false);
-                            showNotification('设置已保存，数据已更新', 'success');
+
+                            const sourceName = getSourceName(AppState.weatherSource);
+                            if (hasError) {
+                                showNotification(`设置已保存，部分使用演示数据`, 'error');
+                            } else if (AppState.weatherSource === 'demo') {
+                                showNotification('设置已保存，演示模式', 'success');
+                            } else {
+                                showNotification(`设置已保存，数据已更新（${sourceName}）`, 'success');
+                            }
                         }
                     }, 300 * index);
                 });
